@@ -1,1 +1,1 @@
-#this template deploys a VNET with Subnets and NSG Rules. This template also create VNET Peering across subscriptions. 
+This template deploys a VNET with Subnets and NSG Rules. Template also creates VNET Peering across subscriptions. 
