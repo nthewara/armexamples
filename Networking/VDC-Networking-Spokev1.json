@@ -3,70 +3,70 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "virtualNetworkName": {
+      "virtualnetworkname": {
         "type": "string",
         "defaultValue": "First_ARM_VNet",
         "metadata": {
           "description": "This is your Virtual Network"
         }
       },
-      "addressPrefix": {
+      "addressprefix": {
         "type": "string",
         "defaultValue": "10.0.0.0/16",
         "metadata": {
           "description": "The CIDR address space for your Virtual Network in Azure"
         }
       },
-      "AppGwSubnetPrefix": {
+      "appgwsubnetprefix": {
         "type": "string",
         "defaultValue": "10.0.0.0/24",
         "metadata": {
           "description": "This is CIDR prefix for the FrontEnd Subnet"
         }
       },
-      "BackendSubnetPrefix": {
+      "backendsubnetprefix": {
         "type": "string",
         "defaultValue": "10.0.1.0/24",
         "metadata": {
           "description": "This is CIDR prefix for the Application Subnet"
         }
       },
-      "DMZSubnetPrefix": {
+      "dmzsubnetprefix": {
         "type": "string",
         "defaultValue": "10.0.2.0/24",
         "metadata": {
           "description": "This is CIDR prefix for the Database Subnet"
         }
       },
-      "FrontendSubnetPrefix": {
+      "frontendsubnetprefix": {
         "type": "string",
         "defaultValue": "10.0.2.0/24",
         "metadata": {
           "description": "This is CIDR prefix for the Database Subnet"
         }
       },
-      "AppGwNSGName": {
+      "appgwnsgname": {
         "type": "string",
         "defaultValue": "FE_NSG",
         "metadata": {
           "description": "This is name of the networkSecurityGroup that will be assigned to FrontEnd Subnet"
         }
       },
-      "BackendNSGName": {
+      "backendnsgname": {
         "type": "string",
         "defaultValue": "FE_NSG",
         "metadata": {
           "description": "This is name of the networkSecurityGroup that will be assigned to FrontEnd Subnet"
         }
       },
-      "DMZNSGName": {
+      "dmznsgname": {
         "type": "string",
         "defaultValue": "App_NSG",
         "metadata": {
           "description": "This is name of the networkSecurityGroup that will be assigned to Application Subnet"
         }
       },
-      "FrontEndNSGName": {
+      "frontendnsgname": {
         "type": "string",
         "defaultValue": "DB_NSG",
         "metadata": {
@@ -75,17 +75,18 @@
       }
     },
     "variables" : {
-      "VNETPeerDestID" : "",
-      "VNETPeerName" : "",
-      "RemoteVNETRG" : "",
-      "RemoteVNETSubID" : "",
-      "CurrentVNET" : "[resourceID('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]"
+      "vnetpeerdestid" : "replace with designation VNET resource ID",
+      "vnetpeername" : "VNET Peer Name",
+      "remotevnetrg" : "Hub VNET Resource Group Name",
+      "remotevnetname" : "Remote VNET Name",
+      "remotevnetsubid" : "Hub VNET Subscription ID",
+      "currentvnet" : "[resourceID('Microsoft.Network/virtualNetworks',parameters('virtualnetworkname'))]"
     },
     "resources": [
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[parameters('AppGwNSGName')]",
+        "name": "[parameters('appgwnsgname')]",
         "location": "[resourceGroup().location]",
         "properties": {
           "securityRules": []
@@ -94,7 +95,7 @@
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[parameters('BackendNSGName')]",
+        "name": "[parameters('backendnsgname')]",
         "location": "[resourceGroup().location]",
         "properties": {
           "securityRules": []
@@ -103,7 +104,7 @@
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[parameters('DMZNSGName')]",
+        "name": "[parameters('dmznsgname')]",
         "location": "[resourceGroup().location]",
         "properties": {
           "securityRules": []
@@ -112,7 +113,7 @@
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[parameters('FrontEndNSGName')]",
+        "name": "[parameters('frontendnsgname')]",
         "location": "[resourceGroup().location]",
         "properties": {
           "securityRules": []
@@ -121,13 +122,13 @@
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/virtualNetworks",
-        "name": "[parameters('virtualNetworkName')]",
+        "name": "[parameters('virtualnetworkname')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('AppGwNSGName'))]",
-          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('BackendNSGName'))]",
-          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('DMZNSGName'))]",
-          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('FrontEndNSGName'))]"
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('appgwnsgname'))]",
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('backendnsgname'))]",
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('dmznsgname'))]",
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('frontendnsgname'))]"
         ],
         "properties": {
           "addressSpace": {
@@ -143,38 +144,38 @@
           },
           "subnets": [
             {
-              "name": "AppGW",
+              "name": "appgW",
               "properties": {
-                "addressPrefix": "[parameters('AppGwSubnetPrefix')]",
+                "addressPrefix": "[parameters('appgwsubnetprefix')]",
                 "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('AppGwNSGName'))]"
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appgwnsgname'))]"
                 }
               }
             },
             {
               "name": "BackEnd",
               "properties": {
-                "addressPrefix": "[parameters('BackendSubnetPrefix')]",
+                "addressPrefix": "[parameters('backendsubnetprefix')]",
                 "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('BackendNSGName'))]"
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('backendnsgname'))]"
                 }
               }
             },
             {
-              "name": "FrontEnd",
+              "name": "frontend",
               "properties": {
-                "addressPrefix": "[parameters('FrontendSubnetPrefix')]",
+                "addressPrefix": "[parameters('frontendsubnetprefix')]",
                 "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('FrontEndNSGName'))]"
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontendnsgname'))]"
                 }
               }
             },
             {
               "name": "DMZ",
               "properties": {
-                "addressPrefix": "[parameters('DMZSubnetPrefix')]",
+                "addressPrefix": "[parameters('dmzsubnetprefix')]",
                 "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DMZNSGName'))]"
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmznsgname'))]"
                 }
               }
             }
@@ -186,7 +187,7 @@
       {
         "apiVersion": "2017-10-01",
         "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-        "name": "[concat(parameters('virtualNetworkName'),'/',variables('VNETPeerName'))]",
+        "name": "[concat(parameters('virtualnetworkname'),'/',variables('vnetpeername'))]",
         "location": "[resourceGroup().location]",
         "properties": {
           "allowVirtualNetworkAccess": true,
@@ -194,16 +195,16 @@
           "allowGatewayTransit": false,
           "useRemoteGateways": true,
           "remoteVirtualNetwork": {
-            "id": "[variables('VNETPeerDestID')]"
+            "id": "[variables('vnetpeerdestid')]"
           }
         }
       },
       {
-        "name": "MCTPRODPeeringDeployment",
+        "name": "peeringdeployment",
         "type": "Microsoft.Resources/deployments",
         "apiVersion": "2017-05-10",
-        "resourceGroup": "[variables('RemoteVNETRG')]",
-        "subscriptionId": "[variables('RemoteVNETSubID')]",
+        "resourceGroup": "[variables('remotevnetrg')]",
+        "subscriptionId": "[variables('remotevnetsubid')]",
         "properties": {
           "template": {
             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
@@ -212,7 +213,7 @@
                 {
                   "apiVersion": "2017-10-01",
                   "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                  "name": "USAZE-MCT-PRD-VNET/LinkToTestNetwork",
+                  "name" : "[concat(variables('remotevnetname'),'/',variables('vnetpeername'))]",
                   "location": "[resourceGroup().location]",
                   "properties": {
                     "allowVirtualNetworkAccess": true,
@@ -220,7 +221,7 @@
                     "allowGatewayTransit": true,
                     "useRemoteGateways": false,
                     "remoteVirtualNetwork": {
-                      "id": "[variables('CurrentVNET')]"
+                      "id": "[variables('currentvnet')]"
                     }
                   }
                 }
