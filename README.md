@@ -1,1 +1,1 @@
-# ARM Examples
+# Azure Resource Manager Examples
