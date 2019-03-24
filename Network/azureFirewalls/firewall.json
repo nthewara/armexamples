@@ -2,40 +2,30 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "type": "string"
-        },
-        "resourceGroup": {
-            "type": "string"
-        },
         "azureFirewallName": {
             "type": "string"
+ 
         },
-        "vnetName": {
+        "virtualNetworkName" : {
             "type": "string"
+
         },
-        "vnetAddressSpace": {
-            "type": "string"
-        },
-        "subnetAddressSpace": {
-            "type": "string"
-        },
+
         "publicIpAddressName": {
             "type": "string"
-        },
-        "subnetId": {
-            "type": "string"
+
         }
     },
     "variables": {
-        "networkApiVersion": "?api-version=2018-08-01"
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetID": "[concat(variables('vnetId'), '/subnets/AzureFirewallSubnet')]"
     },
     "resources": [
         {
             "apiVersion": "2018-08-01",
             "type": "Microsoft.Network/publicIpAddresses",
             "name": "[parameters('publicIpAddressName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard"
             },
@@ -51,9 +41,9 @@
             "apiVersion": "2018-12-01",
             "type": "Microsoft.Network/azureFirewalls",
             "name": "[parameters('azureFirewallName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -61,10 +51,10 @@
                         "name": "IpConf",
                         "properties": {
                             "subnet": {
-                                "id": "[parameters('subnetId')]"
+                                "id": "[variables('subnetId')]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
                             }
                         }
                     }
