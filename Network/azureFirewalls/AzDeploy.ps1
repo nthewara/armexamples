@@ -51,3 +51,5 @@ New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri
 #deploy
 New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateFilePath -azureFirewallName $azfirewallname -virtualNetworkName $vnetname -publicipaddressname $publicIpAddressName
 
+
+#Get-AzResource -ResourceGroupName $vnetname -ResourceType "Microsoft.Network/publicIPAddresses" -Name azfw* | Remove-AzResource -AsJob -Force
