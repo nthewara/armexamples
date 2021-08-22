@@ -1,0 +1,66 @@
+
+# Variables
+rg=vnetplwestcus22082021
+location=WestCentralUS
+stgname=vnetplwestcus22$RANDOM
+
+vm_username=$(whoami)
+
+# Spoke 1
+spoke1_name=spoke1
+spoke1_prefix=10.11.0.0/24
+spoke1_vm_subnet_name=vm
+spoke1_vm_subnet_prefix=10.11.0.0/26
+
+# Spoke 2
+spoke2_name=spoke2
+spoke2_prefix=10.12.0.0/24
+spoke2_vm_subnet_name=vm
+spoke2_vm_subnet_prefix=10.12.0.0/26
+
+# Spoke VM1 
+spoke1_vm_name=spoke1-vm1
+spoke1_vm_pip_name=spoke1-vm1-pip1
+
+# Spoke VM2 
+spoke2_vm_name=spoke2-vm1
+spoke2_vm_pip_name=spoke2-vm1-pip1
+
+
+#Create RG
+az group create -n $rg -l $location
+
+
+
+#Create spoke 
+az network vnet create --resource-group $rg --name $spoke1_name --location $location --address-prefixes $spoke1_prefix --subnet-name $spoke1_vm_subnet_name --subnet-prefix $spoke1_vm_subnet_prefix --tags env=lab
+
+#Create VM in spoke1
+az vm create -n $spoke1_vm_name -g $rg -l $location --image ubuntuLTS --generate-ssh-keys \
+    --public-ip-address $spoke1_vm_pip_name --vnet-name $spoke1_name --size Standard_B1s \
+    --subnet $spoke1_vm_subnet_name --admin-username $vm_username --public-ip-sku Standard --no-wait
+
+
+az storage account create -n $stgname -g $rg -l $location --sku Standard_LRS --kind StorageV2
+
+id=$(az storage account list \
+    --resource-group $rg \
+    --query '[].[id]' \
+    --output tsv)
+
+az network private-endpoint create \
+    --name stgpe \
+    --resource-group $rg \
+    --vnet-name $spoke1_name --subnet $spoke1_vm_subnet_name \
+    --private-connection-resource-id $id \
+    --group-id blob \
+    --connection-name myConnection  
+
+
+az network route-table create -n $rg-rt -g $rg -l $location
+az network vnet subnet update --name $spoke1_vm_subnet_name --route-table $rg-rt --vnet-name $spoke1_name --resource-group $rg
+
+az network vnet subnet show -g $rg -n $spoke1_vm_subnet_name  --vnet-name $spoke1_name 
+
+
+az network vnet subnet update -n $spoke1_vm_subnet_name --vnet-name $spoke1_name -g $rg --disable-private-endpoint-network-policies false
